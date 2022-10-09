@@ -21,7 +21,7 @@ def lock(aims, mouse, top_x, top_y, len_x, len_y, args, pidx, pidy):
         for det in aims_copy:
             _, x_c, y_c, _, _ = det
             dist = (len_x * float(x_c) + top_x - mouse_pos_x) ** 2 + (len_y * float(y_c) + top_y - mouse_pos_y) ** 2
-            print("dist", dist)
+            #print("dist", dist)
             dist_list.append(dist)
 
         if dist_list:
@@ -37,10 +37,10 @@ def lock(aims, mouse, top_x, top_y, len_x, len_y, args, pidx, pidy):
             # pid_movey = pidy(rel_y)
             # print(pid_movex, pid_movey)
             # ghub.mouse_xy(round(pid_movex), round(pid_movey))
-            print(rel_x, rel_y)
+            #print(rel_x, rel_y)
             if abs(mouse_pos_x - x_center) > 5 or abs(mouse_pos_y - y_center) > 5:
                 ghub.mouse_xy(round(rel_x), round(rel_y))
-                print('move mouse  ...', mouse_pos_x - x_center)
+                #print('move mouse  ...', mouse_pos_x - x_center)
 
 
 count = 0  # 频率控制
@@ -58,7 +58,7 @@ def show_fps(cv2, lock_mode, team_mode, img0, t0):
     #             2)
     # 打印fps 控制频率
     if int(count) % 100 == 0:
-        print(1. / (time.time() - t0))
+        #print(1. / (time.time() - t0))
         count = 0
 
     cv2.imshow('aim', img0)

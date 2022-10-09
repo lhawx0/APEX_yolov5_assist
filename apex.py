@@ -2,6 +2,8 @@ from aim_csgo.apex_aim import lock, show_fps, show_top_most
 from aim_csgo.screen_inf import grab_screen_mss, grab_screen_win32, get_parameters
 from aim_csgo.cs_model import load_model
 import cv2
+import pywintypes
+#import pythoncom # Uncomment this if some other DLL load will fail
 import win32gui
 import win32con
 import torch
@@ -23,33 +25,33 @@ from simple_pid import PID
 from widget import ui_mainFrom
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model-path', type=str, default='weights/1best.pt', help='模型位址 model address')
+parser.add_argument('--model-path', type=str, default='weights/yw1.pt', help='模型位址 model address')
 parser.add_argument('--imgsz', type=int, default=640, help='和訓練模型时imgsz一樣')
-parser.add_argument('--conf-thres', type=float, default=0.25, help='置信閥值')#推荐0.25
-parser.add_argument('--iou-thres', type=float, default=0.85, help='交並比閥值') #要小些好？
+parser.add_argument('--conf-thres', type=float, default=0.4, help='置信閥值')#推荐0.25
+parser.add_argument('--iou-thres', type=float, default=0.67, help='交並比閥值') #要小些好？
 parser.add_argument('--use-cuda', type=bool, default=True, help='是否使用cuda')
 parser.add_argument('--show-window', type=bool, default=True,
                     help='是否顯示實時檢測窗口(debug用,若是True,不要去點右上角的X)')
 parser.add_argument('--top-most', type=bool, default=False, help='是否保持窗口置頂')
 parser.add_argument('--resize-window', type=float, default=1, help='缩放窗口大小,缩放系数')
-parser.add_argument('--thickness', type=int, default=4, help='邊框粗細，需大於1/resize-window')
+parser.add_argument('--thickness', type=int, default=1, help='邊框粗細，需大於1/resize-window')
 parser.add_argument('--show-fps', type=bool, default=True, help='是否顯示fps')
 parser.add_argument('--show-label', type=bool, default=True, help='是否顯示標籤')
 
 parser.add_argument('--use_mss', type=str, default=True, help='是否使用mss截屏；为False時使用win32截屏')
 
-parser.add_argument('--region', type=list, default=[0.18, 0.35],
+parser.add_argument('--region', type=list, default=[0.25, 0.444],
                     help='檢測範圍；分别为x軸和y軸，(1.0, 1.0)表示全屏檢測，越低檢測範圍越小(以屏幕中心為檢測中心)')
 
 parser.add_argument('--hold-lock', type=bool, default=True, help='lock模式；True為按住，False為切換')
 parser.add_argument('--lock-sen', type=float, default=1.0, help='lock幅度系數,遊戲中靈敏度(建議不要調整)')
-parser.add_argument('--lock-smooth', type=float, default=0.20, help='lock平滑系数；越大越平滑')
-parser.add_argument('--lock-button', type=str, default='right', help='lock按鍵；只支持鼠標按键')
-parser.add_argument('--head-first', type=bool, default=False, help='是否優先瞄頭')
+parser.add_argument('--lock-smooth', type=float, default=0.33, help='lock平滑系数；越大越平滑')
+parser.add_argument('--lock-button', type=str, default='left', help='lock按鍵；只支持鼠標按键')
+parser.add_argument('--head-first', type=bool, default=True, help='是否優先瞄頭')
 parser.add_argument('--lock-tag', type=list, default=[0], help='對應標籤；person(若模型不同請自行修改對應標籤)')
 parser.add_argument('--lock-choice', type=list, default=[0], help='目標選擇；决定鎖定的目標，從自己的標籤中選')
 
-parser.add_argument('--head-to-foot', type=float, default=0, help='准星位置，从头到脚')
+parser.add_argument('--head-to-foot', type=float, default=4, help='准星位置，从头到脚')
 
 global args
 args = parser.parse_args()
@@ -159,12 +161,12 @@ class Mythread(QThread):
                 cnt = 0
 
             if args.use_mss:
-                t1 = time.time()
+                # t1 = time.time()
                 img0 = grab_screen_mss(monitor)
                 img0 = cv2.resize(img0, (len_x, len_y))
                 # print('111', time.time() -t1)
             else:
-                t2 = time.time()
+                # t2 = time.time()
                 img0 = grab_screen_win32(region=(top_x, top_y, top_x + len_x, top_y + len_y))
                 img0 = cv2.resize(img0, (len_x, len_y))
                 # print('222', time.time() - t2)

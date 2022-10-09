@@ -54,8 +54,8 @@ def Mouse(flags, x=0, y=0, data=0):
 
 
 def mouse_xy(x, y):  # for import
-    if gmok:
-        return gm.moveR(x, y)
+    # if gmok:
+    #     return gm.moveR(x, y)
 
     return SendInput(Mouse(0x0001, x, y))
 
